@@ -39,12 +39,14 @@ class Weight
     );
 
     /**
-     * @var float|null  $weight Base weight
-     * @var integer     $type   Base weight type
+     * @var float|null  Base value
      */
-    protected
-        $weight,
-        $type;
+    protected $value;
+
+    /**
+     * @var integer Type of base value
+     */
+    protected $type;
 
     /**
      * Constructor.
@@ -54,7 +56,11 @@ class Weight
      */
     public function __construct( $weight = null, $type = self::ATTR_WEIGHT_GRAM )
     {
-        $this->weight = is_null( $weight ) ? null : (float) $weight;
+        if ( !isset( self::$pairs[$type] ) )
+        {
+            throw new \InvalidArgumentException( 'Undefined weight type.' );
+        }
+        $this->value = is_null( $weight ) ? null : (float) $weight;
         $this->type = $type;
     }
 
@@ -167,17 +173,17 @@ class Weight
      */
     public function convertUnit( $type, $precision = 0 )
     {
-        if ( is_null( $this->weight ) )
+        if ( is_null( $this->value ) )
         {
             return null;
         }
         if ( $this->type == $type )
         {
-            return round( $this->weight, $precision );
+            return round( $this->value, $precision );
         }
         elseif ( isset( self::$pairs[$this->type][$type] ) )
         {
-            return round( $this->weight * self::$pairs[$this->type][$type], $precision );
+            return round( $this->value * self::$pairs[$this->type][$type], $precision );
         }
         throw new \InvalidArgumentException( 'Undefined weight type.' );
     }
@@ -195,7 +201,7 @@ class Weight
         {
             throw new \InvalidArgumentException( 'Undefined weight type.' );
         }
-        $this->weight = (float) $weight;
+        $this->value = (float) $weight;
         $this->type = $type;
         return $this;
     }
